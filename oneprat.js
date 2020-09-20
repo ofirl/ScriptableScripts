@@ -1,6 +1,11 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
 // icon-color: pink; icon-glyph: magic;
+
+const { NotificationFactory } = importModule(
+	"NotificationFactory"
+);
+
 let webView = new WebView();
 const onePratUrl = "https://one.prat.idf.il";
 await webView.loadURL(onePratUrl);
@@ -20,11 +25,10 @@ else if (window.location.pathname === "/hp") {
 }
 `, true);
 
-console.log(clickButton);
+// console.log(clickButton);
 
-if (!clickButton) {
-    return completeScript('error');
-}
+if (!clickButton)
+	return completeScript('error');
 
 // wait for redirects
 await new Promise(r => Timer.schedule(1000, false, r));
@@ -50,19 +54,20 @@ completeScript(result);
 
 function completeScript(result) {
 	if (config.runsInApp)
-	QuickLook.present(result);
+		QuickLook.present(result);
 
-	let resultNotification = new Notification();
-	resultNotification.identifier = 'ReportOneStatus';
-	resultNotification.title = 'Report One';
-	resultNotification.subtitle = 'Status';
-	resultNotification.body = result;
-	resultNotification.sound = result === true ? 'complete' : 'failure';
-	resultNotification.setTriggerDate(new Date(Date.now() + 3000));
-	resultNotification.addAction('Open Site', onePratUrl, false);
-	
-	resultNotification.schedule();
-	
+	NotificationFactory({
+		threadIdentifier: 'ReportOneStatus',
+		title: 'Report One',
+		subtitle: 'Status',
+		body: result,
+		sound: result === true ? 'complete' : 'failure',
+		actions: [{
+			name: 'Open Site',
+			url: onePratUrl
+		}]
+	})
+
 	return result;
-	Script.complete();
+	// Script.complete();
 }
