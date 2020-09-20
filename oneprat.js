@@ -7,6 +7,10 @@ const { NotificationFactory } = importModule(
 );
 
 let webView = new WebView();
+
+if (config.runsInApp)
+	webView.present(true);
+
 const onePratUrl = "https://one.prat.idf.il";
 await webView.loadURL(onePratUrl);
 
@@ -17,7 +21,7 @@ let clickButton = await webView.evaluateJavaScript(`
 console.log(window.location.href);
 
 if (window.location.pathname === "/finish") {
-    completion(false);
+    completion(document.body.innerHTML.includes('banana') ? false : null);
 }
 else if (window.location.pathname === "/hp") {
     document.querySelector('.locationStatusBtn').click();
@@ -27,8 +31,12 @@ else if (window.location.pathname === "/hp") {
 
 // console.log(clickButton);
 
-if (!clickButton)
-	return completeScript('error');
+if (!clickButton) {
+	if (clickButton === false)
+		return completeScript(`Too late to report`);
+	else
+		return completeScript(`Unknown error while reporting`);
+}
 
 // wait for redirects
 await new Promise(r => Timer.schedule(1000, false, r));
@@ -57,11 +65,12 @@ function completeScript(result) {
 		QuickLook.present(result);
 
 	NotificationFactory({
-		threadIdentifier: 'ReportOneStatus',
+		threadIdentifier: 'ReportOne',
 		title: 'Report One',
 		subtitle: 'Status',
 		body: result,
 		sound: result === true ? 'complete' : 'failure',
+		openURL: onePratUrl,
 		actions: [{
 			name: 'Open Site',
 			url: onePratUrl
