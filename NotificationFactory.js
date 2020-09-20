@@ -2,10 +2,6 @@
 // These must be at the very top of the file. Do not edit.
 // icon-color: teal; icon-glyph: magic;
 
-const { widgetFactory, widgetSpacer, widgetText } = importModule(
-    "NotificationFactory"
-);
-
 /**
  * @typedef {'default' | 'accept' | 'alert' | 'complete' | 'event' | 'failure' | 'piano_error' | 'piano_success' | 'popup'} Sound
  * 
@@ -34,7 +30,7 @@ module.exports.NotificationFactory = ({
     sound,
     triggerIn = 3000,
     repeatTrigger,
-    userInfo,
+    userInfo = '',
     badge,
     actions = [],
     openURL,
